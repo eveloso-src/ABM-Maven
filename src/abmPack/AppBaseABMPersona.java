@@ -42,6 +42,9 @@ public class AppBaseABMPersona {
 				case 6:
 					venta(conexion, scan);
 					break;
+				case 7:
+					registroVenta(conexion, scan);
+					break;
 
 				}
 
@@ -54,6 +57,43 @@ public class AppBaseABMPersona {
 		catch (SQLException e) {
 			error();
 		}
+	}
+
+	private static void registroVenta(Connection conexion, Scanner scan) {
+		
+		Statement stmt;
+
+		System.out.println("REGISTRO DE VENTAS POR CLIENTE");
+		System.out.println();
+
+		try {
+
+			stmt = conexion.createStatement();
+			
+			System.out.println("Ingrese ID de cliente ");
+			int idPersona = scan.nextInt();
+			
+			ResultSet rsListado = stmt.executeQuery("select * from VENTA WHERE ID_PERSONA = '"+idPersona+"'");
+
+			boolean encabezado = false;
+
+			while (rsListado.next()) {
+				
+				if (!encabezado) {
+					System.out.println(" ID | FECHA | IMPORTE | ID_PERSONA ");
+					encabezado = true;
+				}
+			
+				System.out.println(rsListado.getInt(1) + "  " + rsListado.getDate(2) + "  " + rsListado.getInt(3) + " " + rsListado.getInt(4) );
+
+			}
+
+		}
+
+		catch (Exception e) {
+			error();
+		}
+
 	}
 
 	private static void venta(Connection conexion, Scanner scan) {
@@ -78,29 +118,31 @@ public class AppBaseABMPersona {
 				sinRegistro = false;
 
 				if (!encabezado) {
-					System.out.println(" ID | NOMBRE)");
+					System.out.println(" ID | NOMBRE ");
+					encabezado = true;
 				}
 
 				System.out.println(rsListado.getInt(1) + "  " + rsListado.getString(2));
 
 			}
-
+			
+			System.out.println();
 			System.out.println("Ingrese nuevo importe");
 			float importe = scan.nextFloat();
 
 			// te falta agregar fecha
+			SimpleDateFormat fechaVenta = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			Date fechaActual = new Date();
+			String strFechaVenta = fechaVenta.format(fechaActual);
 
-			SimpleDateFormat fechaActual = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			Date fechaVenta = new Date();
-			
-			
-
-			String venta = "INSERT INTO VENTA (FECHA, IMPORTE, ID_PERSONA) VALUES ('" + importe + "', '" + idPersona
-					+ "')";
+			String venta = "INSERT INTO VENTA (FECHA, IMPORTE, ID_PERSONA) VALUES ('" + strFechaVenta + "','" + importe
+					+ "', '" + idPersona + "')";
 			stmt.executeUpdate(venta);
 
+			System.out.println("Venta registrada correctamente");
+
 			if (sinRegistro) {
-				System.out.println("No hay registros con ese nombre :( ");
+				System.out.println("No hay registros con ese nombre ");
 			}
 
 		}
@@ -127,7 +169,8 @@ public class AppBaseABMPersona {
 			while (rsListado.next()) {
 				sinRegistro = false;
 				if (!encabezado) {
-					System.out.println("NOMBRE | EDAD | FECHA_NACIMIENTO)");
+					System.out.println("NOMBRE | EDAD | FECHA_NACIMIENTO");
+					encabezado = true;
 				}
 
 				Date stringFecha = rsListado.getDate(4);
@@ -161,7 +204,8 @@ public class AppBaseABMPersona {
 
 			while (rsListado.next()) {
 				if (!encabezado) {
-					System.out.println("NOMBRE | EDAD | FECHA_NACIMIENTO)");
+					System.out.println("NOMBRE | EDAD | FECHA_NACIMIENTO");
+					encabezado = true;
 				}
 				Date stringFecha = rsListado.getDate(4);
 				System.out.println(rsListado.getInt(1) + "  " + rsListado.getString(2) + "  " + rsListado.getString(3)
@@ -251,6 +295,7 @@ public class AppBaseABMPersona {
 					+ "' , '" + stringFecha + "')";
 			stmt.executeUpdate(insert);
 
+			System.out.println("Registro realizado correctamente");
 		}
 
 		catch (Exception e) {
@@ -269,6 +314,8 @@ public class AppBaseABMPersona {
 		System.out.println("3. BAJA");
 		System.out.println("4. LISTADO");
 		System.out.println("5. BUSCAR");
+		System.out.println("6. VENTA");
+		System.out.println("7. REGISTRO DE VENTAS");
 		System.out.println("0. SALIR");
 
 		int opcion = scan.nextInt();
